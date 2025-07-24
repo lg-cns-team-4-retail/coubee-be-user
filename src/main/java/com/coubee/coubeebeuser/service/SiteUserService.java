@@ -45,7 +45,7 @@ public class SiteUserService {
         }
         siteUserRepository.save(coubeeUser);
         SiteUserInfoEvent event = SiteUserInfoEvent.fromEntity("Create", coubeeUser);
-        kafkaMessageProducer.send(SiteUserInfoEvent.Topic, event);
+//        kafkaMessageProducer.send(SiteUserInfoEvent.Topic, event);
         return ActionAndId.of("Create", coubeeUser.getUserId());
     }
 

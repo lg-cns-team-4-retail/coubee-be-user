@@ -10,8 +10,13 @@ spring:
     password: Cou!bee@
     driver-class-name: org.postgresql.Driver
     hikari:
-      connection-test-query: SELECT 1
-      validation-timeout: 5000
+#      connection-test-query: SELECT 1
+#      validation-timeout: 5000
+      minimum-idle: 4        # 최소 유휴 커넥션 수
+      maximum-pool-size: 4   # 최대 커넥션 수
+      idle-timeout: 10000    # 유휴 커넥션 유지 시간 (ms)
+      max-lifetime: 30000    # 커넥션 최대 생존 시간 (ms)
+      connection-timeout: 30000 # 커넥션 가져오기 최대 대기 시간 (ms)
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
