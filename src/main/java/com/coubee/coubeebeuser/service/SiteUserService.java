@@ -93,6 +93,7 @@ public class SiteUserService {
                 .profileImageUrl(dto.getProfileImageUrl())
                 .build();
         CoubeeUserInfo saved = coubeeUserInfoRepository.save(newInfo);
+
         return SiteUserInfoDto.fromEntity(targetUser,saved);
     }
 
