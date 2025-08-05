@@ -79,7 +79,7 @@ public class TokenGenerator {
                                            boolean refreshToken) {
         int tokenExpiresIn = tokenExpiresIn(refreshToken, deviceType);
         String tokenType = refreshToken ? "refresh" : "access";
-        int testExp = 15000;
+        int testExp =  refreshToken ? 86400000 : 15000;
         String token = Jwts.builder()
                 .issuer("coubee")
                 .subject(user.getUsername())
