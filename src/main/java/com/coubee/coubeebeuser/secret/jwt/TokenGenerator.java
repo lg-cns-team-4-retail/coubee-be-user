@@ -79,7 +79,6 @@ public class TokenGenerator {
                                            boolean refreshToken) {
         int tokenExpiresIn = tokenExpiresIn(refreshToken, deviceType);
         String tokenType = refreshToken ? "refresh" : "access";
-        int testExp =  refreshToken ? 86400000 : 15000;
         String token = Jwts.builder()
                 .issuer("coubee")
                 .subject(user.getUsername())
@@ -89,14 +88,12 @@ public class TokenGenerator {
                 .claim("role", user.getRole())
                 .claim("tokenType", tokenType)
                 .issuedAt(new Date())
-//                .expiration(new Date(System.currentTimeMillis() + tokenExpiresIn * 1000L))
-                .expiration(new Date(System.currentTimeMillis() + testExp))
+                .expiration(new Date(System.currentTimeMillis() + tokenExpiresIn * 1000L))
                 .signWith(getSecretKey())
                 .header().add("typ", "JWT")
                 .and()
                 .compact();
-//        return new TokenDto.JwtToken(token, tokenExpiresIn);
-        return new TokenDto.JwtToken(token, testExp);
+        return new TokenDto.JwtToken(token, tokenExpiresIn);
     }
 
 
