@@ -4,6 +4,7 @@ import com.coubee.coubeebeuser.common.dto.ApiResponseDto;
 import com.coubee.coubeebeuser.common.web.context.GatewayRequestHeaderUtils;
 import com.coubee.coubeebeuser.domain.dto.SiteUserInfoDto;
 import com.coubee.coubeebeuser.domain.dto.SiteUserInfoRegisterDto;
+import com.coubee.coubeebeuser.domain.dto.TokenUserInfoDto;
 import com.coubee.coubeebeuser.remote.alim.RemoteAlimService;
 import com.coubee.coubeebeuser.service.SiteUserService;
 import com.coubee.coubeebeuser.util.FileUploader;
@@ -51,5 +52,17 @@ public class UserController {
     public ApiResponseDto<String> uploadProfile(@RequestParam("file") MultipartFile file) {
         String profileImageUrl = siteUserService.uploadProfile(file);
         return ApiResponseDto.createOk(profileImageUrl);
+    }
+
+    @GetMapping(value = "/token/info")
+    public ApiResponseDto<TokenUserInfoDto> getTokenInfo(){
+        TokenUserInfoDto dto = new TokenUserInfoDto();
+        String nickname = GatewayRequestHeaderUtils.getUserNickName();
+        String role = GatewayRequestHeaderUtils.getUserRole();
+        String username = GatewayRequestHeaderUtils.getUserName();
+        dto.setUsername(username);
+        dto.setNickName(nickname);
+        dto.setRole(role);
+        return ApiResponseDto.readOk(dto);
     }
 }
