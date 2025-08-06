@@ -59,14 +59,31 @@ public class SiteUserService {
         return ActionAndId.of("Update", 0L);
     }
 
+//    @Transactional(readOnly = true)
+//    public TokenDto.AccessRefreshToken login(SiteUserLoginDto loginDto) {
+//        CoubeeUser user = siteUserRepository.findByUsername(loginDto.getUsername())
+//                .orElseThrow(() -> new NotFound("아이디 또는 비밀번호를 확인하세요."));
+//        if (!SecureHashUtils.matches(loginDto.getPassword(), user.getPassword())) {
+//            throw new BadParameter("아이디 또는 비밀번호를 확인하세요.");
+//        }
+//        return tokenGenerator.generateAccessRefreshToken(user, "WEB");
+//    }
+
     @Transactional(readOnly = true)
-    public TokenDto.AccessRefreshToken login(SiteUserLoginDto loginDto) {
+    public SiteUserLoginResponseDto login(SiteUserLoginDto loginDto) {
         CoubeeUser user = siteUserRepository.findByUsername(loginDto.getUsername())
                 .orElseThrow(() -> new NotFound("아이디 또는 비밀번호를 확인하세요."));
         if (!SecureHashUtils.matches(loginDto.getPassword(), user.getPassword())) {
             throw new BadParameter("아이디 또는 비밀번호를 확인하세요.");
         }
-        return tokenGenerator.generateAccessRefreshToken(user, "WEB");
+        CoubeeUserInfo coubeeUserInfo = coubeeUserInfoRepository.findByUserId(user.getUserId()).orElse(null);
+
+        SiteUserLoginResponseDto loginResponseDto = new SiteUserLoginResponseDto();
+
+        loginResponseDto.setAccessRefreshToken(tokenGenerator.generateAccessRefreshToken(user, "WEB"));
+        loginResponseDto.setUserInfo(SiteUserInfoDto.fromEntity(user,coubeeUserInfo));
+
+        return loginResponseDto;
     }
 
     @Transactional(readOnly = true)
