@@ -2,12 +2,12 @@ package com.coubee.coubeebeuser.api.open;
 
 import com.coubee.coubeebeuser.common.dto.ApiResponseDto;
 import com.coubee.coubeebeuser.common.web.context.GatewayRequestHeaderUtils;
+import com.coubee.coubeebeuser.domain.dto.NotificationTokenDto;
 import com.coubee.coubeebeuser.domain.dto.SiteUserInfoDto;
 import com.coubee.coubeebeuser.domain.dto.SiteUserInfoRegisterDto;
 import com.coubee.coubeebeuser.domain.dto.TokenUserInfoDto;
 import com.coubee.coubeebeuser.remote.alim.RemoteAlimService;
 import com.coubee.coubeebeuser.service.SiteUserService;
-import com.coubee.coubeebeuser.util.FileUploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -64,5 +64,18 @@ public class UserController {
         dto.setNickName(nickname);
         dto.setRole(role);
         return ApiResponseDto.readOk(dto);
+    }
+
+    @PostMapping(value="/notification/token")
+    public ApiResponseDto<?> saveNotificationToken(@RequestBody NotificationTokenDto dto){
+        String username = GatewayRequestHeaderUtils.getUsernameOrThrowException();
+        siteUserService.saveNotificationToken(username,dto);
+        return ApiResponseDto.defaultOk();
+    }
+
+    @PostMapping("/notification/token/delete")
+    public ApiResponseDto<?> deleteNotificationToken(@RequestBody NotificationTokenDto dto){
+        siteUserService.deleteNotificationToken(dto);
+        return ApiResponseDto.defaultOk();
     }
 }

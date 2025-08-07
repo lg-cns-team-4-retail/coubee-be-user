@@ -5,9 +5,11 @@ import com.coubee.coubeebeuser.common.exception.NotFound;
 import com.coubee.coubeebeuser.common.type.ActionAndId;
 import com.coubee.coubeebeuser.domain.CoubeeUser;
 import com.coubee.coubeebeuser.domain.CoubeeUserInfo;
+import com.coubee.coubeebeuser.domain.NotificationToken;
 import com.coubee.coubeebeuser.domain.dto.*;
 import com.coubee.coubeebeuser.domain.event.SiteUserInfoEvent;
 import com.coubee.coubeebeuser.domain.repository.CoubeeUserInfoRepository;
+import com.coubee.coubeebeuser.domain.repository.NotificationTokenRepository;
 import com.coubee.coubeebeuser.domain.repository.SiteUserRepository;
 import com.coubee.coubeebeuser.event.producer.KafkaMessageProducer;
 import com.coubee.coubeebeuser.secret.hash.SecureHashUtils;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -31,6 +34,7 @@ public class SiteUserService {
     private final KafkaMessageProducer kafkaMessageProducer;
     private final CoubeeUserInfoRepository coubeeUserInfoRepository;
     private final FileUploader fileUploader;
+    private final NotificationTokenRepository notificationTokenRepository;
 
     @Transactional
     public ActionAndId registerUserAndNotify(SiteUserRegisterDto registerDto) {
@@ -125,5 +129,41 @@ public class SiteUserService {
     public String uploadProfile(MultipartFile file) {
         String profileImageUrl = fileUploader.upload(file,"user/profile");
         return profileImageUrl;
+    }
+
+
+    public void saveNotificationToken(String username, NotificationTokenDto dto){
+        Optional<NotificationToken> existToken = notificationTokenRepository.findByToken(dto.getNotificationToken());
+        CoubeeUser user = siteUserRepository.findByUsername(username).orElseThrow(()->new NotFound("유저 없음"));
+        if(existToken.isPresent()){
+            if(user.getUsername().equals(username)){
+                log.info("기존 거 있음");
+            }else{
+                notificationTokenRepository.delete(existToken.get());
+                notificationTokenRepository.flush();
+                log.info("기존거 삭제");
+                NotificationToken notificationToken = NotificationToken.builder()
+                        .user(user).token(dto.getNotificationToken()).build();
+                notificationTokenRepository.save(notificationToken);
+                log.info("새 토큰 저장");
+            }
+        }else{
+            NotificationToken notificationToken = NotificationToken.builder()
+                    .user(user).token(dto.getNotificationToken()).build();
+            notificationTokenRepository.save(notificationToken);
+            log.info("새 토큰 저장");
+        }
+    }
+    public void deleteNotificationToken(NotificationTokenDto dto){
+        Optional<NotificationToken> existToken = notificationTokenRepository.findByToken(dto.getNotificationToken());
+        existToken.ifPresent(notificationTokenRepository::delete);
+        log.info("noti 토큰 삭제");
+    }
+
+    public List<String> getNotificationTokenListByUserId(Long userId){
+        List<NotificationToken> list = notificationTokenRepository.findAllByUser_UserId(userId);
+        return list.stream()
+                .map(NotificationToken::getToken)
+                .toList();
     }
 }
