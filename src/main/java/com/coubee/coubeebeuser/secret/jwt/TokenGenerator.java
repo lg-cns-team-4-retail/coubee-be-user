@@ -133,8 +133,7 @@ public class TokenGenerator {
     }
 
     private int tokenExpiresIn(boolean refreshToken, String deviceType) {
-//        int expiresIn = 60 * 15;
-        int expiresIn = 10;
+        int expiresIn = 60 * 15;
 
         if( refreshToken) {
             if( deviceType != null) {
