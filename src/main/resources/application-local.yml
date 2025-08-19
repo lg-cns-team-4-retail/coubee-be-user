@@ -29,6 +29,11 @@ spring:
       hibernate.default_schema: coubee_user
   kafka:
     bootstrap-servers: localhost:9092
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 6000
 file:
   upload:
     base-dir: ${user.home}/Desktop/coubee-img
