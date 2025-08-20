@@ -6,10 +6,10 @@ import com.coubee.coubeebeuser.common.type.ActionAndId;
 import com.coubee.coubeebeuser.domain.CoubeeUser;
 import com.coubee.coubeebeuser.domain.CoubeeUserInfo;
 import com.coubee.coubeebeuser.domain.NotificationToken;
+import com.coubee.coubeebeuser.domain.Role;
 import com.coubee.coubeebeuser.domain.dto.*;
 import com.coubee.coubeebeuser.domain.event.SiteUserInfoEvent;
 import com.coubee.coubeebeuser.domain.repository.CoubeeUserInfoRepository;
-import com.coubee.coubeebeuser.domain.repository.NotificationTokenRepository;
 import com.coubee.coubeebeuser.domain.repository.SiteUserRepository;
 import com.coubee.coubeebeuser.event.producer.KafkaMessageProducer;
 import com.coubee.coubeebeuser.secret.hash.SecureHashUtils;
@@ -18,12 +18,13 @@ import com.coubee.coubeebeuser.secret.jwt.dto.TokenDto;
 import com.coubee.coubeebeuser.util.FileUploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -34,7 +35,9 @@ public class SiteUserService {
     private final KafkaMessageProducer kafkaMessageProducer;
     private final CoubeeUserInfoRepository coubeeUserInfoRepository;
     private final FileUploader fileUploader;
-    private final NotificationTokenRepository notificationTokenRepository;
+    private static final String PREFIX = "notificationToken:";
+    @Autowired(required = false)
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Transactional
     public ActionAndId registerUserAndNotify(SiteUserRegisterDto registerDto) {
@@ -131,39 +134,76 @@ public class SiteUserService {
         return profileImageUrl;
     }
 
+    public void saveNotificationToken(String username, NotificationTokenDto dto) {
+        if (redisTemplate == null) {
+            log.warn("RedisTemplate is not available in this profile.");
+            return;
+        }
 
-    public void saveNotificationToken(String username, NotificationTokenDto dto){
-        Optional<NotificationToken> existToken = notificationTokenRepository.findByToken(dto.getNotificationToken());
-        CoubeeUser user = siteUserRepository.findByUsername(username).orElseThrow(()->new NotFound("유저 없음"));
-        if(existToken.isPresent()){
-            if(user.getUsername().equals(username)){
-                log.info("기존 거 있음");
-            }else{
-                notificationTokenRepository.delete(existToken.get());
-                notificationTokenRepository.flush();
-                log.info("기존거 삭제");
-                NotificationToken notificationToken = NotificationToken.builder()
-                        .user(user).token(dto.getNotificationToken()).build();
-                notificationTokenRepository.save(notificationToken);
-                log.info("새 토큰 저장");
-            }
-        }else{
-            NotificationToken notificationToken = NotificationToken.builder()
-                    .user(user).token(dto.getNotificationToken()).build();
-            notificationTokenRepository.save(notificationToken);
-            log.info("새 토큰 저장");
+        CoubeeUser user = siteUserRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFound("유저 없음"));
+
+        String tokenKey = PREFIX + dto.getNotificationToken();
+        String indexKey = "userTokenIndex:" + user.getUserId();
+
+        NotificationToken tokenObj = NotificationToken.builder()
+                .userId(user.getUserId())
+                .token(dto.getNotificationToken())
+                .build();
+
+        // 1) 토큰 기준 저장
+        redisTemplate.opsForValue().set(tokenKey, tokenObj);
+
+        // 2) userId → 토큰 인덱스 저장
+        redisTemplate.opsForSet().add(indexKey, dto.getNotificationToken());
+    }
+    public void deleteNotificationToken(String token) {
+        if (redisTemplate == null) {
+            log.warn("RedisTemplate is not available in this profile.");
+            return;
+        }
+
+        String tokenKey = PREFIX + token;
+        NotificationToken tokenObj = (NotificationToken) redisTemplate.opsForValue().get(tokenKey);
+
+        if (tokenObj != null) {
+            String indexKey = "userTokenIndex:" + tokenObj.getUserId();
+            redisTemplate.opsForSet().remove(indexKey, token);
+            redisTemplate.delete(tokenKey);
         }
     }
-    public void deleteNotificationToken(NotificationTokenDto dto){
-        Optional<NotificationToken> existToken = notificationTokenRepository.findByToken(dto.getNotificationToken());
-        existToken.ifPresent(notificationTokenRepository::delete);
-        log.info("noti 토큰 삭제");
+
+    public List<String> getNotificationTokenListByUserId(Long userId) {
+        if (redisTemplate == null) {
+            log.warn("RedisTemplate is not available in this profile.");
+            return List.of();
+        }
+        String indexKey = "userTokenIndex:" + userId;
+        Set<Object> tokens = redisTemplate.opsForSet().members(indexKey);
+        if (tokens == null) return List.of();
+
+        return tokens.stream()
+                .filter(Objects::nonNull)
+                .map(String::valueOf)
+                .toList();
     }
 
-    public List<String> getNotificationTokenListByUserId(Long userId){
-        List<NotificationToken> list = notificationTokenRepository.findAllByUser_UserId(userId);
-        return list.stream()
-                .map(NotificationToken::getToken)
-                .toList();
+    /// 관리자 기능
+    public List<CoubeeUser> getAllSiteUserList(String username,String role) {
+        if(role==null||role.isBlank()){
+            return siteUserRepository.findAllByUsernameContainingIgnoreCaseOrderByUserIdAsc(username);
+        }else{
+            return switch (role) {
+                case "admin" ->
+                        siteUserRepository.findAllByUsernameContainingIgnoreCaseAndRoleOrderByUserIdAsc(username, Role.ROLE_ADMIN);
+                case "user" ->
+                        siteUserRepository.findAllByUsernameContainingIgnoreCaseAndRoleOrderByUserIdAsc(username, Role.ROLE_USER);
+                default -> siteUserRepository.findAllByUsernameContainingIgnoreCaseOrderByUserIdAsc(username);
+            };
+        }
+    }
+
+    public void passwordReset(Long userId){
+        siteUserRepository.findById(userId).ifPresent(siteUser -> {siteUser.setPassword("1234");});
     }
 }

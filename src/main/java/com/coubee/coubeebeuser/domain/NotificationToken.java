@@ -1,28 +1,23 @@
 package com.coubee.coubeebeuser.domain;
 
-import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Entity
-@NoArgsConstructor
+import java.io.Serializable;
+import java.util.List;
+
 @Getter
-public class NotificationToken {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long tokenId;
-
-    @ManyToOne()
-    @JoinColumn(name = "user_id", nullable = false)
-    private CoubeeUser user;
-
+@Setter
+@NoArgsConstructor
+public class NotificationToken implements Serializable {
+    private Long userId;
     private String token;
 
-
     @Builder
-    public NotificationToken(CoubeeUser user, String token) {
-        this.user = user;
+    public NotificationToken(Long userId, String token) {
+        this.userId = userId;
         this.token = token;
     }
 }

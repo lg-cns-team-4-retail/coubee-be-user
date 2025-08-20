@@ -75,7 +75,7 @@ public class UserController {
 
     @PostMapping("/notification/token/delete")
     public ApiResponseDto<?> deleteNotificationToken(@RequestBody NotificationTokenDto dto){
-        siteUserService.deleteNotificationToken(dto);
+        siteUserService.deleteNotificationToken(dto.getNotificationToken());
         return ApiResponseDto.defaultOk();
     }
 }
