@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +40,7 @@ public class SiteUserService {
     private static final String PREFIX = "notificationToken:";
     @Autowired(required = false)
     private RedisTemplate<String, Object> redisTemplate;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public ActionAndId registerUserAndNotify(SiteUserRegisterDto registerDto) {
@@ -51,6 +53,7 @@ public class SiteUserService {
         if(existedNickName.isPresent()){
             throw new BadParameter("사용하고 있는 닉네임입니다");
         }
+        coubeeUser.setPassword(passwordEncoder.encode(registerDto.getPassword()));
         siteUserRepository.save(coubeeUser);
         SiteUserInfoEvent event = SiteUserInfoEvent.fromEntity("Create", coubeeUser);
         kafkaMessageProducer.send(SiteUserInfoEvent.Topic, event);
@@ -80,8 +83,8 @@ public class SiteUserService {
     @Transactional(readOnly = true)
     public SiteUserLoginResponseDto login(SiteUserLoginDto loginDto) {
         CoubeeUser user = siteUserRepository.findByUsername(loginDto.getUsername())
-                .orElseThrow(() -> new NotFound("아이디 또는 비밀번호를 확인하세요."));
-        if (!SecureHashUtils.matches(loginDto.getPassword(), user.getPassword())) {
+                .orElseThrow(() -> new BadParameter("아이디 또는 비밀번호를 확인하세요."));
+        if (!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
             throw new BadParameter("아이디 또는 비밀번호를 확인하세요.");
         }
         CoubeeUserInfo coubeeUserInfo = coubeeUserInfoRepository.findByUserId(user.getUserId()).orElse(null);
@@ -205,6 +208,6 @@ public class SiteUserService {
     }
 
     public void passwordReset(Long userId){
-        siteUserRepository.findById(userId).ifPresent(siteUser -> {siteUser.setPassword("1234");});
+        siteUserRepository.findById(userId).ifPresent(siteUser -> {siteUser.setPassword(passwordEncoder.encode("1234"));});
     }
 }

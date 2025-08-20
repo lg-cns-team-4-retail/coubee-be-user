@@ -11,9 +11,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableFeignClients
 @EnableJpaAuditing
 public class CoubeeBeUserApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(CoubeeBeUserApplication.class, args);
     }
-
 }
