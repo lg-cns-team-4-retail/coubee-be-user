@@ -6,7 +6,6 @@ import com.coubee.coubeebeuser.domain.dto.NotificationTokenDto;
 import com.coubee.coubeebeuser.domain.dto.SiteUserInfoDto;
 import com.coubee.coubeebeuser.domain.dto.SiteUserInfoRegisterDto;
 import com.coubee.coubeebeuser.domain.dto.TokenUserInfoDto;
-import com.coubee.coubeebeuser.remote.alim.RemoteAlimService;
 import com.coubee.coubeebeuser.service.SiteUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping(value = "/api/user", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class UserController {
-    private final RemoteAlimService remoteAlimService;
+//    private final RemoteAlimService remoteAlimService;
     private final SiteUserService siteUserService;
 
 
