@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @Slf4j
 @Component
-@Profile("prod")
+@Profile("stg")
 @RequiredArgsConstructor
 public class S3Uploader implements FileUploader{
 
