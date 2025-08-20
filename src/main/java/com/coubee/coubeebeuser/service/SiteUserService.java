@@ -206,7 +206,7 @@ public class SiteUserService {
             };
         }
     }
-
+    @Transactional
     public void passwordReset(Long userId){
         siteUserRepository.findById(userId).ifPresent(siteUser -> {siteUser.setPassword(passwordEncoder.encode("1234"));});
     }
