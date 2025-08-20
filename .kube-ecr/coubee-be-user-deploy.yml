@@ -23,19 +23,19 @@ spec:
             - containerPort: 8080
           volumeMounts:
             - mountPath: /etc/config
-              name: api-user-config-volume
+              name: be-user-config-volume
             - mountPath: /etc/secret
-              name: api-user-secret-volume
+              name: be-user-secret-volume
       volumes:
-        - name: api-user-config-volume
+        - name: be-user-config-volume
           configMap:
-            name: api-user-config
+            name: be-user-config
             items:
               - key: application-stg.yml
                 path: application-stg.yml
-        - name: api-user-secret-volume
+        - name: be-user-secret-volume
           secret:
-            secretName: api-user-secret
+            secretName: be-user-secret
             items:
               - key: application-secret.yml
                 path: application-secret.yml
