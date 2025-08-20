@@ -9,6 +9,7 @@ import com.coubee.coubeebeuser.domain.NotificationToken;
 import com.coubee.coubeebeuser.domain.Role;
 import com.coubee.coubeebeuser.domain.dto.*;
 import com.coubee.coubeebeuser.domain.event.SiteUserInfoEvent;
+import com.coubee.coubeebeuser.domain.mapper.UserMapper;
 import com.coubee.coubeebeuser.domain.repository.CoubeeUserInfoRepository;
 import com.coubee.coubeebeuser.domain.repository.SiteUserRepository;
 import com.coubee.coubeebeuser.event.producer.KafkaMessageProducer;
@@ -189,16 +190,16 @@ public class SiteUserService {
     }
 
     /// 관리자 기능
-    public List<CoubeeUser> getAllSiteUserList(String username,String role) {
+    public List<SiteUserSuDto> getAllSiteUserList(String username,String role) {
         if(role==null||role.isBlank()){
-            return siteUserRepository.findAllByUsernameContainingIgnoreCaseOrderByUserIdAsc(username);
+            return siteUserRepository.findAllByUsernameContainingIgnoreCaseOrderByUserIdAsc(username).stream().map(UserMapper::fromEntity).toList();
         }else{
             return switch (role) {
                 case "admin" ->
-                        siteUserRepository.findAllByUsernameContainingIgnoreCaseAndRoleOrderByUserIdAsc(username, Role.ROLE_ADMIN);
+                        siteUserRepository.findAllByUsernameContainingIgnoreCaseAndRoleOrderByUserIdAsc(username, Role.ROLE_ADMIN).stream().map(UserMapper::fromEntity).toList();
                 case "user" ->
-                        siteUserRepository.findAllByUsernameContainingIgnoreCaseAndRoleOrderByUserIdAsc(username, Role.ROLE_USER);
-                default -> siteUserRepository.findAllByUsernameContainingIgnoreCaseOrderByUserIdAsc(username);
+                        siteUserRepository.findAllByUsernameContainingIgnoreCaseAndRoleOrderByUserIdAsc(username, Role.ROLE_USER).stream().map(UserMapper::fromEntity).toList();
+                default -> siteUserRepository.findAllByUsernameContainingIgnoreCaseOrderByUserIdAsc(username).stream().map(UserMapper::fromEntity).toList();
             };
         }
     }
