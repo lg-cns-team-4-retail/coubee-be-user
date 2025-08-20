@@ -24,8 +24,8 @@ public class UserSuController {
         log.info("test");
         return ApiResponseDto.readOk(siteUserService.getAllSiteUserList(username.trim(),role));
     }
-    @PostMapping("/pwd")
-    public ApiResponseDto<String> passwordReset(@RequestParam Long userId){
+    @PostMapping("/pwd/{userId}")
+    public ApiResponseDto<String> passwordReset(@PathVariable Long userId){
         siteUserService.passwordReset(userId);
         return ApiResponseDto.defaultOk();
     }
