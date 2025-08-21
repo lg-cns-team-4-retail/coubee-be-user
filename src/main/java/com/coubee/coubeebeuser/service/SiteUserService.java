@@ -66,12 +66,6 @@ public class SiteUserService {
     public ActionAndId updateEmailAndNotify() {
         return ActionAndId.of("Update", 0L);
     }
-
-    @Transactional
-    public ActionAndId updateAddressAndNotify() {
-        return ActionAndId.of("Update", 0L);
-    }
-
 //    @Transactional(readOnly = true)
 //    public TokenDto.AccessRefreshToken login(SiteUserLoginDto loginDto) {
 //        CoubeeUser user = siteUserRepository.findByUsername(loginDto.getUsername())
