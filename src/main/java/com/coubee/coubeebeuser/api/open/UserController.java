@@ -84,11 +84,12 @@ public class UserController {
     }
 
     @GetMapping("/auth/test")
-    public ApiResponseDto<String> testNotification(){
+    public ApiResponseDto<String> testNotification(@RequestParam(defaultValue = "",required = false) String title){
         TestDto dto = TestDto.builder()
                 .eventId(UUID.randomUUID().toString())
-                .title("민규는 날로먹는게 죠아")
-                .message("해죠")
+                .title(title)
+                .message("재촉하지마십숑")
+                .userId(1L)
                 .orderId("order_test")
                 .notificationType("PAYED")
                 .build();
