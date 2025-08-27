@@ -6,12 +6,17 @@ import com.coubee.coubeebeuser.domain.dto.NotificationTokenDto;
 import com.coubee.coubeebeuser.domain.dto.SiteUserInfoDto;
 import com.coubee.coubeebeuser.domain.dto.SiteUserInfoRegisterDto;
 import com.coubee.coubeebeuser.domain.dto.TokenUserInfoDto;
+import com.coubee.coubeebeuser.domain.event.SiteUserInfoEvent;
+import com.coubee.coubeebeuser.event.producer.KafkaMessageProducer;
 import com.coubee.coubeebeuser.service.SiteUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -20,7 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
 //    private final RemoteAlimService remoteAlimService;
     private final SiteUserService siteUserService;
-
+    private final KafkaMessageProducer kafkaMessageProducer;
 
 //    @GetMapping(value = "/test")
 //    public ApiResponseDto<String> test() {
@@ -75,6 +80,19 @@ public class UserController {
     @PostMapping("/notification/token/delete")
     public ApiResponseDto<?> deleteNotificationToken(@RequestBody NotificationTokenDto dto){
         siteUserService.deleteNotificationToken(dto.getNotificationToken());
+        return ApiResponseDto.defaultOk();
+    }
+
+    @GetMapping("/auth/test")
+    public ApiResponseDto<String> testNotification(){
+        TestDto dto = TestDto.builder()
+                .eventId(UUID.randomUUID().toString())
+                .title("민규는 날로먹는게 죠아")
+                .message("해죠")
+                .orderId("order_test")
+                .notificationType("PAYED")
+                .build();
+        kafkaMessageProducer.send("notification-events",dto);
         return ApiResponseDto.defaultOk();
     }
 }
