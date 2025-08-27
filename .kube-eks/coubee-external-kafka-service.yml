@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: coubee-external-kafka-service
+  namespace: default
+spec:
+  type: ExternalName
+  externalName: kafka-nlb-4f48daf621a87bdf.elb.ap-northeast-2.amazonaws.com
