@@ -3,7 +3,6 @@ kind: Service
 metadata:
   name: es-external
 spec:
-  clusterIP: None
   ports:
     - port: 9200
 
