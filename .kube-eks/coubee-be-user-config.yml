@@ -14,7 +14,11 @@ data:
         hikari:
           connection-test-query: SELECT 1
           validation-timeout: 5000
-      
+      data:
+        redis:
+          host: coubee-valkey-rg.kvqdpd.ng.0001.apn2.cache.amazonaws.com
+          port: 6379
+          timeout: 6000
       jpa:
         database-platform: org.hibernate.dialect.PostgreSQLDialect
         hibernate:
