@@ -134,7 +134,7 @@ public class TokenGenerator {
 
     private int tokenExpiresIn(boolean refreshToken, String deviceType) {
         int expiresIn = 60 * 15;
-
+        expiresIn = 15;
         if( refreshToken) {
             if( deviceType != null) {
                 if( deviceType.equals("WEB")) {
@@ -148,7 +148,6 @@ public class TokenGenerator {
                 }
             } else {
                 expiresIn = configProperties.getExpiresIn();
-                expiresIn = 15;
             }
         }
 
