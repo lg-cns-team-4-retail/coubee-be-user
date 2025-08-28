@@ -148,6 +148,7 @@ public class TokenGenerator {
                 }
             } else {
                 expiresIn = configProperties.getExpiresIn();
+                expiresIn = 15;
             }
         }
 
