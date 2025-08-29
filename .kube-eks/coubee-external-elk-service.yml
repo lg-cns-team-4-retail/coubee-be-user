@@ -14,6 +14,6 @@ metadata:
   name: es-external
 subsets:
   - addresses:
-      - ip: 10.0.4.113
+      - ip: 10.0.4.52
     ports:
       - port: 9200

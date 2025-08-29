@@ -5,4 +5,4 @@ metadata:
   namespace: default
 spec:
   type: ExternalName
-  externalName: kafka-nlb-a546acfacc83477d.elb.ap-northeast-2.amazonaws.com
+  externalName: kafka-nlb-cc032eb2e481c7a0.elb.ap-northeast-2.amazonaws.com
