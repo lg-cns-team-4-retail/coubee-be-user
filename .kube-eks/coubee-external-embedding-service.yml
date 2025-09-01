@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: embedding-external
+spec:
+  ports:
+    - port: 8089
+
+---
+
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: embedding-external
+subsets:
+  - addresses:
+      - ip: 10.0.4.171
+    ports:
+      - port: 8089
