@@ -14,6 +14,8 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "/api/user/admin", produces = MediaType.APPLICATION_JSON_VALUE)
+@Timed
+@Counted
 public class UserAdminController {
 
     private final SiteUserService siteUserService;

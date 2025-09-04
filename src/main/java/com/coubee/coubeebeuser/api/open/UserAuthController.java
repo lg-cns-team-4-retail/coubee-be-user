@@ -7,6 +7,8 @@ import com.coubee.coubeebeuser.domain.dto.SiteUserRefreshDto;
 import com.coubee.coubeebeuser.domain.dto.SiteUserRegisterDto;
 import com.coubee.coubeebeuser.secret.jwt.dto.TokenDto;
 import com.coubee.coubeebeuser.service.SiteUserService;
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping(value = "/api/user/auth", produces = MediaType.APPLICATION_JSON_VALUE)
+@Timed
+@Counted
 @RequiredArgsConstructor
 public class UserAuthController {
     private final SiteUserService siteUserService;

@@ -42,3 +42,12 @@ data:
           bucket: coubee-s3
         cloudfront:
           domain: d1du1htkbm5yt2.cloudfront.net
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: prometheus, health, info
+      prometheus:
+        metrics:
+          export:
+            enabled: true

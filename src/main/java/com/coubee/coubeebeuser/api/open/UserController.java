@@ -9,6 +9,8 @@ import com.coubee.coubeebeuser.domain.dto.TokenUserInfoDto;
 import com.coubee.coubeebeuser.domain.event.SiteUserInfoEvent;
 import com.coubee.coubeebeuser.event.producer.KafkaMessageProducer;
 import com.coubee.coubeebeuser.service.SiteUserService;
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -22,6 +24,8 @@ import java.util.UUID;
 @RestController
 @RequestMapping(value = "/api/user", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
+@Timed
+@Counted
 public class UserController {
 //    private final RemoteAlimService remoteAlimService;
     private final SiteUserService siteUserService;
