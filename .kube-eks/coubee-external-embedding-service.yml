@@ -14,6 +14,6 @@ metadata:
   name: embedding-external
 subsets:
   - addresses:
-      - ip: 10.0.4.205
+      - ip: 10.0.4.54
     ports:
       - port: 8089
