@@ -2,6 +2,8 @@ package com.coubee.coubeebeuser.api.open;
 
 import com.coubee.coubeebeuser.common.dto.ApiResponseDto;
 import com.coubee.coubeebeuser.service.SiteUserService;
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
