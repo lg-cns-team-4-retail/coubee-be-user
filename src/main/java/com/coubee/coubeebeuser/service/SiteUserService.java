@@ -139,18 +139,20 @@ public class SiteUserService {
             log.warn("RedisTemplate is not available in this profile.");
             return;
         }
-
+        log.info("saveNotificationToken call!!");
         CoubeeUser user = siteUserRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFound("유저 없음"));
 
         String tokenKey = PREFIX + dto.getNotificationToken();
+        log.info("tokenKey : {}", tokenKey);
         String indexKey = "userTokenIndex:" + user.getUserId();
+        log.info("indexKey: {}",indexKey);
 
         NotificationToken tokenObj = NotificationToken.builder()
                 .userId(user.getUserId())
                 .token(dto.getNotificationToken())
                 .build();
-
+        log.info("tokenObj : {}", "userId :"+tokenObj.getUserId() + ", token : " + tokenObj.getToken());
         // 1) 토큰 기준 저장
         redisTemplate.opsForValue().set(tokenKey, tokenObj);
 
